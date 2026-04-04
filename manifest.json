@@ -1,0 +1,19 @@
+{
+  "name": "細胞検査士試験タイマー",
+  "short_name": "CT試験タイマー",
+  "description": "細胞検査士資格試験の練習用タイマー。一次試験・二次試験の各科目に対応。",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#2563eb",
+  "background_color": "#f8fafc",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
