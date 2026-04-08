@@ -640,6 +640,45 @@
       margin-left: 6px;
     }
 
+    /* Kind tabs (per-kind sound selection) */
+    .kind-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      padding: 4px;
+      background: var(--bg);
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .kind-tab {
+      padding: 9px 4px;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--text-sub);
+      transition: all 0.18s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .kind-tab:hover { color: var(--text); }
+    .kind-tab.active {
+      background: var(--card);
+      color: var(--primary);
+      border-color: var(--primary);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    }
+    .kind-tab-icon {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    .kind-tab-name {
+      font-size: 0.72rem;
+    }
+
     /* Demo audition */
     .demo-grid {
       display: grid;
@@ -688,6 +727,23 @@
     }
     .demo-btn.playing .demo-desc {
       color: rgba(255, 255, 255, 0.9);
+    }
+    .demo-current {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--primary);
+      padding: 2px 7px;
+      margin-top: 3px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.1);
+      white-space: nowrap;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .demo-btn.playing .demo-current {
+      background: rgba(255, 255, 255, 0.22);
+      color: #fff;
     }
     .demo-all-btn {
       width: 100%;
@@ -1121,7 +1177,24 @@
 
         <!-- Sound Type -->
         <div class="modal-section">
-          <div class="modal-section-label">🔊 通知音の種類</div>
+          <div class="modal-section-label">
+            🔊 通知音の種類
+            <span class="section-hint">タイミングごとに別の音を選択できます</span>
+          </div>
+          <div class="kind-tabs" id="kindTabs">
+            <button type="button" class="kind-tab active" data-kind="alert">
+              <span class="kind-tab-icon">⚠️</span>
+              <span class="kind-tab-name">アラート</span>
+            </button>
+            <button type="button" class="kind-tab" data-kind="breakEnd">
+              <span class="kind-tab-icon">▶️</span>
+              <span class="kind-tab-name">再開</span>
+            </button>
+            <button type="button" class="kind-tab" data-kind="finish">
+              <span class="kind-tab-icon">🏁</span>
+              <span class="kind-tab-name">完了</span>
+            </button>
+          </div>
           <div class="sound-type-grid" id="soundTypeGrid">
             <button class="sound-type-btn active" data-sound="beep">
               <span>🔔 ビープ</span>
@@ -1162,23 +1235,26 @@
         <div class="modal-section">
           <div class="modal-section-label">
             🎧 デモ試聴
-            <span class="section-hint">選択中の音で各タイミングを確認</span>
+            <span class="section-hint">各タイミングに割り当てた音を試聴</span>
           </div>
           <div class="demo-grid">
             <button class="demo-btn" data-demo-kind="alert">
               <span class="demo-icon">⚠️</span>
               <span class="demo-label">アラート</span>
               <span class="demo-desc">残り時間通知</span>
+              <span class="demo-current" data-current-for="alert">🔔 ビープ</span>
             </button>
             <button class="demo-btn" data-demo-kind="breakEnd">
               <span class="demo-icon">▶️</span>
               <span class="demo-label">再開</span>
               <span class="demo-desc">休憩終了</span>
+              <span class="demo-current" data-current-for="breakEnd">🔔 ビープ</span>
             </button>
             <button class="demo-btn" data-demo-kind="finish">
               <span class="demo-icon">🏁</span>
               <span class="demo-label">完了</span>
               <span class="demo-desc">終了通知</span>
+              <span class="demo-current" data-current-for="finish">🔔 ビープ</span>
             </button>
           </div>
           <button class="demo-all-btn" id="demoAllBtn">▶ 3つの音を順番に再生</button>
@@ -1221,19 +1297,40 @@
     const SETTINGS_KEY = 'ct-timer-settings';
     const PRESETS_KEY = 'ct-timer-my-presets';
 
+    // Per-kind sound selection.
+    // Each kind ('alert' | 'breakEnd' | 'finish') can have its own sound preset.
     const defaultSettings = {
       soundEnabled: true,
-      soundType: 'beep',     // 'beep' | 'chime' | 'bell' | 'digital' | 'marimba' | 'piano' | 'alarm' | 'ding'
+      soundTypes: {
+        alert:    'beep',
+        breakEnd: 'beep',
+        finish:   'beep'
+      },
       volume: 0.5,           // 0.0 - 1.0
       vibrateEnabled: true
     };
 
     function loadSettings() {
+      const def = JSON.parse(JSON.stringify(defaultSettings));
       try {
         const stored = localStorage.getItem(SETTINGS_KEY);
-        if (stored) return { ...defaultSettings, ...JSON.parse(stored) };
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          // Migrate legacy single-string soundType -> per-kind soundTypes
+          if (typeof parsed.soundType === 'string' && !parsed.soundTypes) {
+            parsed.soundTypes = {
+              alert:    parsed.soundType,
+              breakEnd: parsed.soundType,
+              finish:   parsed.soundType
+            };
+          }
+          delete parsed.soundType;
+          // Deep merge soundTypes so missing keys fall back to defaults
+          const mergedSoundTypes = { ...def.soundTypes, ...(parsed.soundTypes || {}) };
+          return { ...def, ...parsed, soundTypes: mergedSoundTypes };
+        }
       } catch (e) {}
-      return { ...defaultSettings };
+      return def;
     }
 
     function saveSettings() {
@@ -1418,10 +1515,23 @@
       });
     }
 
+    // Map for displaying preset names in UI
+    const SOUND_LABELS = {
+      beep:    '🔔 ビープ',
+      chime:   '🎵 チャイム',
+      bell:    '🛎 ベル',
+      digital: '📟 デジタル',
+      marimba: '🎶 マリンバ',
+      piano:   '🎹 ピアノ',
+      alarm:   '⏰ アラーム',
+      ding:    '💫 ディン'
+    };
+
     function playSound(kind) {
       if (!settings.soundEnabled || settings.volume === 0) return;
       ensureAudioCtx();
-      const fn = SOUND_PRESETS[settings.soundType] || SOUND_PRESETS.beep;
+      const soundType = (settings.soundTypes && settings.soundTypes[kind]) || 'beep';
+      const fn = SOUND_PRESETS[soundType] || SOUND_PRESETS.beep;
       fn(kind);
     }
 
@@ -1476,13 +1586,32 @@
     progressCircle.style.strokeDashoffset = 0;
 
     // ===== Initialize UI from settings =====
+    let activeKind = 'alert'; // currently edited kind in settings modal
+
+    function refreshSoundGrid() {
+      const current = (settings.soundTypes && settings.soundTypes[activeKind]) || 'beep';
+      soundTypeGrid.querySelectorAll('.sound-type-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.sound === current);
+      });
+      document.querySelectorAll('.kind-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.kind === activeKind);
+      });
+    }
+
+    function refreshDemoLabels() {
+      document.querySelectorAll('.demo-current').forEach(el => {
+        const k = el.dataset.currentFor;
+        const sound = (settings.soundTypes && settings.soundTypes[k]) || 'beep';
+        el.textContent = SOUND_LABELS[sound] || sound;
+      });
+    }
+
     function applySettingsToUI() {
       // Sound toggle button
       soundToggle.textContent = settings.soundEnabled ? '🔔' : '🔕';
-      // Sound type buttons
-      soundTypeGrid.querySelectorAll('.sound-type-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.sound === settings.soundType);
-      });
+      // Sound type / kind tabs
+      refreshSoundGrid();
+      refreshDemoLabels();
       // Volume slider
       volumeSlider.value = Math.round(settings.volume * 100);
       updateVolumeUI();
@@ -1519,25 +1648,33 @@
       if (e.target === settingsModal) settingsModal.classList.remove('show');
     });
 
-    // Sound type selection
+    // Kind tab selection (which kind we're currently assigning a sound to)
+    document.querySelectorAll('.kind-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        activeKind = tab.dataset.kind;
+        refreshSoundGrid();
+      });
+    });
+
+    // Sound type selection — assigns the chosen sound to the active kind
     soundTypeGrid.querySelectorAll('.sound-type-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        // If preview button was clicked, just preview
+        // If preview button was clicked, just preview the sound for the active kind
         if (e.target.classList.contains('preview-btn')) {
           e.stopPropagation();
           ensureAudioCtx();
-          const oldType = settings.soundType;
-          settings.soundType = e.target.dataset.preview;
-          playSound('alert');
-          settings.soundType = oldType;
+          const previewType = e.target.dataset.preview;
+          const fn = SOUND_PRESETS[previewType] || SOUND_PRESETS.beep;
+          fn(activeKind);
           return;
         }
-        soundTypeGrid.querySelectorAll('.sound-type-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        settings.soundType = btn.dataset.sound;
+        if (!settings.soundTypes) settings.soundTypes = {};
+        settings.soundTypes[activeKind] = btn.dataset.sound;
         saveSettings();
+        refreshSoundGrid();
+        refreshDemoLabels();
         ensureAudioCtx();
-        playSound('alert'); // preview on selection
+        playSound(activeKind); // preview on selection
       });
     });
 
@@ -1549,7 +1686,7 @@
     });
     volumeSlider.addEventListener('change', () => {
       ensureAudioCtx();
-      playSound('alert'); // preview after release
+      playSound(activeKind); // preview after release using active kind
     });
 
     // Vibration toggle
