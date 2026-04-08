@@ -1141,8 +1141,9 @@
 
     // ===== State =====
     let timerInterval = null;
-    let totalSeconds = 0;
+    let totalSeconds = 0;        // current phase total (work or break)
     let remainingSeconds = 0;
+    let workDurationSec = 0;     // immutable work session length (preserved across breaks)
     let isPaused = false;
     let isBreak = false;
     let currentSet = 1;
@@ -1582,9 +1583,10 @@
       const h = parseInt(customH.value) || 0;
       const m = parseInt(customM.value) || 0;
       const s = parseInt(customS.value) || 0;
-      totalSeconds = h * 3600 + m * 60 + s;
+      workDurationSec = h * 3600 + m * 60 + s;
+      totalSeconds = workDurationSec;
 
-      if (totalSeconds <= 0) {
+      if (workDurationSec <= 0) {
         showToast('⚠️ 時間を設定してください');
         return;
       }
@@ -1600,7 +1602,7 @@
       alertThresholds = [];
       document.querySelectorAll('.alert-chip input:checked').forEach(cb => {
         const val = parseInt(cb.value);
-        if (val < totalSeconds) alertThresholds.push(val);
+        if (val < workDurationSec) alertThresholds.push(val);
       });
 
       // Determine display names
@@ -1653,29 +1655,35 @@
 
       if (remainingSeconds <= 0) {
         if (isBreak) {
-          // Break is over, start next set
+          // Break is over, start next work session
           isBreak = false;
           currentSet++;
-          remainingSeconds = totalSeconds;
+          // Restore work duration (preserved in workDurationSec)
+          totalSeconds = workDurationSec;
+          remainingSeconds = workDurationSec;
           alertsFired = new Set(); // reset alerts for new set
           intervalBadge.textContent = `${currentSet} / ${totalSets} セット`;
           timerModeName.textContent = modeName;
           playBreakEndSound();
           showToast(`▶ セット ${currentSet} 開始`);
         } else if (currentSet < totalSets) {
-          // Start break between sets
-          playFinishSound();
-          showToast(`⏸ 休憩 ${breakDuration}秒`);
+          // Work session ended, start break
           if (breakDuration > 0) {
             isBreak = true;
             remainingSeconds = breakDuration;
             totalSeconds = breakDuration; // for progress calc during break
             timerModeName.textContent = '🍵 休憩中';
+            playFinishSound();
+            showToast(`⏸ 休憩 ${breakDuration}秒`);
           } else {
-            // No break, go directly to next set
+            // No break configured, go directly to next set
             currentSet++;
-            remainingSeconds = totalSeconds;
+            totalSeconds = workDurationSec;
+            remainingSeconds = workDurationSec;
+            alertsFired = new Set();
             intervalBadge.textContent = `${currentSet} / ${totalSets} セット`;
+            playBreakEndSound();
+            showToast(`▶ セット ${currentSet} 開始`);
           }
         } else {
           // All sets done
@@ -1686,13 +1694,6 @@
             ? `全 ${totalSets} セット完了しました`
             : `${examName} ${modeName} 完了`;
           return;
-        }
-        // Restore totalSeconds for main timer if coming from break
-        if (!isBreak) {
-          const h = parseInt(customH.value) || 0;
-          const m = parseInt(customM.value) || 0;
-          const sec = parseInt(customS.value) || 0;
-          totalSeconds = h * 3600 + m * 60 + sec;
         }
       }
 
@@ -1708,17 +1709,19 @@
     });
 
     resetBtn.addEventListener('click', () => {
-      const h = parseInt(customH.value) || 0;
-      const m = parseInt(customM.value) || 0;
-      const s = parseInt(customS.value) || 0;
-      totalSeconds = h * 3600 + m * 60 + s;
-      remainingSeconds = totalSeconds;
+      // Reset to the very first work session (Set 1 of N)
+      totalSeconds = workDurationSec;
+      remainingSeconds = workDurationSec;
       alertsFired = new Set();
       isPaused = false;
       isBreak = false;
+      currentSet = 1;
       pauseBtn.textContent = '⏸';
       pauseBtn.classList.remove('paused');
       timerModeName.textContent = modeName;
+      if (totalSets > 1) {
+        intervalBadge.textContent = `${currentSet} / ${totalSets} セット`;
+      }
       updateDisplay();
       showToast('↺ リセット');
     });
