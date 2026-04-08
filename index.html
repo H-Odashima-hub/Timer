@@ -939,6 +939,16 @@
       font-weight: 600;
       margin-top: 2px;
     }
+    .my-preset-interval {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-top: 5px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.1);
+    }
     .my-preset-delete {
       position: absolute;
       top: 6px;
@@ -1749,13 +1759,22 @@
       myPresetsGrid.style.display = 'grid';
       myPresetsGrid.innerHTML = '';
       myPresets.forEach((p, idx) => {
+        // Backward compat: legacy presets without sets/breakSec
+        const sets = p.sets || 1;
+        const breakSec = (typeof p.breakSec === 'number') ? p.breakSec : 0;
         const btn = document.createElement('div');
         btn.className = 'my-preset-btn';
         btn.dataset.minutes = Math.floor(p.totalSec / 60);
         btn.dataset.seconds = p.totalSec % 60;
+        let intervalLine = '';
+        if (sets > 1) {
+          const breakLabel = breakSec > 0 ? ` / 休憩 ${breakSec}秒` : '';
+          intervalLine = `<div class="my-preset-interval">🔁 ${sets}セット${breakLabel}</div>`;
+        }
         btn.innerHTML = `
           <div class="my-preset-name">${escapeHtml(p.name)}</div>
           <div class="my-preset-time">${formatTime(p.totalSec)}</div>
+          ${intervalLine}
           <button class="my-preset-delete" data-idx="${idx}" title="削除">×</button>
         `;
         btn.addEventListener('click', (e) => {
@@ -1777,6 +1796,9 @@
           customH.value = Math.floor(p.totalSec / 3600);
           customM.value = Math.floor((p.totalSec % 3600) / 60);
           customS.value = p.totalSec % 60;
+          // Restore interval settings from the preset
+          intervalInput.value = sets;
+          breakInput.value = breakSec;
           // Set as selectedPreset with custom name
           selectedPreset = {
             querySelector: (sel) => {
@@ -1803,9 +1825,16 @@
         showToast('⚠️ 時間を入力してください');
         return;
       }
-      const name = prompt('プリセット名を入力してください', formatTime(totalSec));
+      const sets = Math.max(1, parseInt(intervalInput.value) || 1);
+      const breakSec = Math.max(0, parseInt(breakInput.value) || 0);
+      // Show what will be saved in the prompt for user confirmation
+      const summaryLines = [`時間: ${formatTime(totalSec)}`];
+      if (sets > 1) summaryLines.push(`セット数: ${sets}`);
+      if (sets > 1 && breakSec > 0) summaryLines.push(`休憩: ${breakSec}秒`);
+      const defaultName = formatTime(totalSec) + (sets > 1 ? ` ×${sets}` : '');
+      const name = prompt(`プリセット名を入力してください\n\n${summaryLines.join('\n')}`, defaultName);
       if (!name) return;
-      myPresets.push({ name: name.slice(0, 30), totalSec });
+      myPresets.push({ name: name.slice(0, 30), totalSec, sets, breakSec });
       saveMyPresets();
       renderMyPresets();
       showToast('✅ プリセットを保存しました');
