@@ -488,6 +488,345 @@
     }
     .finish-btn:hover { transform: translateY(-2px); }
 
+    /* ===== Settings Button (Header) ===== */
+    .settings-toggle {
+      position: absolute;
+      top: 50%;
+      right: 72px;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: #fff;
+      font-size: 1.4rem;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .settings-toggle:hover { background: rgba(255,255,255,0.35); }
+
+    /* ===== Modal ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 16px;
+      animation: fadeIn 0.2s ease;
+    }
+    .modal-overlay.show { display: flex; }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .modal {
+      background: var(--card);
+      border-radius: 16px;
+      max-width: 480px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-light);
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .modal-close:hover { background: var(--bg); }
+    .modal-body {
+      padding: 20px 24px;
+    }
+    .modal-section {
+      margin-bottom: 24px;
+    }
+    .modal-section:last-child { margin-bottom: 0; }
+    .modal-section-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Sound type select */
+    .sound-type-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .sound-type-btn {
+      padding: 12px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      background: var(--card);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .sound-type-btn:hover {
+      border-color: var(--primary);
+    }
+    .sound-type-btn.active {
+      border-color: var(--primary);
+      background: #eff6ff;
+      color: var(--primary);
+    }
+    .sound-type-btn .preview-btn {
+      background: var(--bg);
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .sound-type-btn .preview-btn:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* Volume slider */
+    .volume-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .volume-icon {
+      font-size: 1.2rem;
+    }
+    .volume-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--border);
+      outline: none;
+      cursor: pointer;
+    }
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .volume-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+    .volume-slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      border: none;
+    }
+    .volume-value {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--primary);
+      min-width: 42px;
+      text-align: right;
+    }
+
+    /* Toggle switch */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .toggle-label-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .toggle-label {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+    .toggle-desc {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      margin-top: 2px;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .switch-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: var(--border);
+      border-radius: 28px;
+      transition: 0.3s;
+    }
+    .switch-slider::before {
+      content: "";
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .switch input:checked + .switch-slider {
+      background: var(--primary);
+    }
+    .switch input:checked + .switch-slider::before {
+      transform: translateX(20px);
+    }
+
+    /* Save preset button */
+    .save-preset-btn {
+      margin-top: 12px;
+      width: 100%;
+      padding: 10px;
+      background: #eff6ff;
+      border: 2px dashed var(--primary);
+      color: var(--primary);
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .save-preset-btn:hover {
+      background: #dbeafe;
+    }
+    .save-preset-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* My presets */
+    .my-presets-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .my-presets-empty {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-light);
+      font-size: 0.85rem;
+      background: var(--card);
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+    }
+    .my-preset-btn {
+      position: relative;
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 14px 14px 14px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    .my-preset-btn:hover {
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+    .my-preset-btn.selected {
+      border-color: var(--primary);
+      background: #eff6ff;
+    }
+    .my-preset-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding-right: 24px;
+      word-break: break-word;
+    }
+    .my-preset-time {
+      font-size: 0.8rem;
+      color: var(--primary);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .my-preset-delete {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: none;
+      border: none;
+      color: var(--text-light);
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .my-preset-delete:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+
     /* ===== Toast ===== */
     .toast {
       position: fixed;
@@ -524,6 +863,7 @@
   <header class="header">
     <h1>細胞検査士試験タイマー</h1>
     <p>CT Exam Timer</p>
+    <button class="settings-toggle" id="settingsToggle" title="設定">⚙️</button>
     <button class="sound-toggle" id="soundToggle" title="通知音 ON/OFF">🔔</button>
   </header>
 
@@ -587,6 +927,17 @@
             <input type="number" id="customSeconds" min="0" max="59" value="0" inputmode="numeric">
           </div>
         </div>
+        <button class="save-preset-btn" id="savePresetBtn">＋ マイプリセットに保存</button>
+      </div>
+
+      <!-- My Presets -->
+      <div class="section-label">⭐ マイプリセット</div>
+      <div id="myPresetsContainer">
+        <div class="my-presets-empty" id="myPresetsEmpty">
+          保存したプリセットはまだありません<br>
+          <span style="font-size:0.75rem;">カスタム時間を入力して「マイプリセットに保存」ボタンを押してください</span>
+        </div>
+        <div class="my-presets-grid" id="myPresetsGrid" style="display:none;"></div>
       </div>
 
       <!-- Interval -->
@@ -681,12 +1032,114 @@
     </div>
   </div>
 
+  <!-- ===== Settings Modal ===== -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">⚙️ 設定</span>
+        <button class="modal-close" id="modalCloseBtn">×</button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Sound Type -->
+        <div class="modal-section">
+          <div class="modal-section-label">🔊 通知音の種類</div>
+          <div class="sound-type-grid" id="soundTypeGrid">
+            <button class="sound-type-btn active" data-sound="beep">
+              <span>🔔 ビープ</span>
+              <span class="preview-btn" data-preview="beep">▶</span>
+            </button>
+            <button class="sound-type-btn" data-sound="chime">
+              <span>🎵 チャイム</span>
+              <span class="preview-btn" data-preview="chime">▶</span>
+            </button>
+            <button class="sound-type-btn" data-sound="bell">
+              <span>🔔 ベル</span>
+              <span class="preview-btn" data-preview="bell">▶</span>
+            </button>
+            <button class="sound-type-btn" data-sound="digital">
+              <span>📟 デジタル</span>
+              <span class="preview-btn" data-preview="digital">▶</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Volume -->
+        <div class="modal-section">
+          <div class="modal-section-label">🔉 音量</div>
+          <div class="volume-row">
+            <span class="volume-icon" id="volumeIcon">🔈</span>
+            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="50">
+            <span class="volume-value" id="volumeValue">50%</span>
+          </div>
+        </div>
+
+        <!-- Vibration -->
+        <div class="modal-section">
+          <div class="modal-section-label">📳 バイブレーション</div>
+          <div class="toggle-row">
+            <div class="toggle-label-group">
+              <span class="toggle-label">振動通知</span>
+              <span class="toggle-desc">スマホで振動でも通知（対応端末のみ）</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="vibrateToggle" checked>
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div class="toast" id="toast"></div>
 
   <script>
+    // ===== Settings (persisted) =====
+    const SETTINGS_KEY = 'ct-timer-settings';
+    const PRESETS_KEY = 'ct-timer-my-presets';
+
+    const defaultSettings = {
+      soundEnabled: true,
+      soundType: 'beep',     // 'beep' | 'chime' | 'bell' | 'digital'
+      volume: 0.5,           // 0.0 - 1.0
+      vibrateEnabled: true
+    };
+
+    function loadSettings() {
+      try {
+        const stored = localStorage.getItem(SETTINGS_KEY);
+        if (stored) return { ...defaultSettings, ...JSON.parse(stored) };
+      } catch (e) {}
+      return { ...defaultSettings };
+    }
+
+    function saveSettings() {
+      try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+      } catch (e) {}
+    }
+
+    function loadMyPresets() {
+      try {
+        const stored = localStorage.getItem(PRESETS_KEY);
+        if (stored) return JSON.parse(stored);
+      } catch (e) {}
+      return [];
+    }
+
+    function saveMyPresets() {
+      try {
+        localStorage.setItem(PRESETS_KEY, JSON.stringify(myPresets));
+      } catch (e) {}
+    }
+
+    let settings = loadSettings();
+    let myPresets = loadMyPresets();
+
     // ===== State =====
-    let soundEnabled = true;
     let timerInterval = null;
     let totalSeconds = 0;
     let remainingSeconds = 0;
@@ -710,26 +1163,100 @@
       if (audioCtx.state === 'suspended') audioCtx.resume();
     }
 
-    function playBeep(freq = 880, duration = 0.15, count = 1) {
-      if (!soundEnabled) return;
-      ensureAudioCtx();
-      for (let i = 0; i < count; i++) {
+    /**
+     * Play a single tone with specified params.
+     * type: oscillator type
+     * freq: frequency in Hz
+     * startOffset: relative start time in seconds
+     * duration: tone duration
+     */
+    function playTone(type, freq, startOffset, duration) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      const t = audioCtx.currentTime + startOffset;
+      // Use settings.volume as the peak value
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, settings.volume * 0.6), t + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + duration + 0.05);
+    }
+
+    /**
+     * Sound presets - each takes a "kind" parameter:
+     * kind: 'alert' | 'finish' | 'breakEnd'
+     */
+    const SOUND_PRESETS = {
+      beep: (kind) => {
+        if (kind === 'alert')      playSequence([{f:660,d:0.2},{f:660,d:0.2,gap:0.1}], 'sine');
+        else if (kind === 'finish') playSequence([{f:1046,d:0.18},{f:1046,d:0.18,gap:0.08},{f:1046,d:0.18,gap:0.08},{f:1318,d:0.3,gap:0.08}], 'sine');
+        else                        playSequence([{f:784,d:0.15},{f:880,d:0.15,gap:0.08}], 'sine');
+      },
+      chime: (kind) => {
+        if (kind === 'alert')      playSequence([{f:880,d:0.3},{f:1108,d:0.4,gap:0.05}], 'triangle');
+        else if (kind === 'finish') playSequence([{f:880,d:0.25},{f:1108,d:0.25,gap:0.02},{f:1318,d:0.25,gap:0.02},{f:1760,d:0.6,gap:0.02}], 'triangle');
+        else                        playSequence([{f:1108,d:0.3},{f:880,d:0.4,gap:0.05}], 'triangle');
+      },
+      bell: (kind) => {
+        if (kind === 'alert')      playSequence([{f:1568,d:0.5}], 'sine', 1.5);
+        else if (kind === 'finish') playSequence([{f:2093,d:0.4},{f:2093,d:0.4,gap:0.1},{f:2093,d:1.0,gap:0.1}], 'sine', 1.5);
+        else                        playSequence([{f:1175,d:0.5}], 'sine', 1.5);
+      },
+      digital: (kind) => {
+        if (kind === 'alert')      playSequence([{f:2000,d:0.08},{f:2000,d:0.08,gap:0.05},{f:2000,d:0.08,gap:0.05}], 'square');
+        else if (kind === 'finish') playSequence([{f:1500,d:0.1},{f:1500,d:0.1,gap:0.05},{f:1500,d:0.1,gap:0.05},{f:1500,d:0.1,gap:0.05},{f:2500,d:0.3,gap:0.1}], 'square');
+        else                        playSequence([{f:1800,d:0.1},{f:1500,d:0.1,gap:0.05}], 'square');
+      }
+    };
+
+    /**
+     * Play a sequence of tones.
+     * tones: [{f: freq, d: duration, gap: optional gap before this tone}]
+     * type: oscillator type
+     * volMultiplier: extra multiplier (e.g. for bell richer sound)
+     */
+    function playSequence(tones, type, volMultiplier = 1) {
+      let offset = 0;
+      tones.forEach(tone => {
+        if (tone.gap) offset += tone.gap;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime + i * (duration + 0.08));
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i * (duration + 0.08) + duration);
+        osc.type = type;
+        osc.frequency.value = tone.f;
+        const t = audioCtx.currentTime + offset;
+        const peak = Math.max(0.0001, settings.volume * 0.6 * volMultiplier);
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(peak, t + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + tone.d);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-        osc.start(audioCtx.currentTime + i * (duration + 0.08));
-        osc.stop(audioCtx.currentTime + i * (duration + 0.08) + duration + 0.05);
+        osc.start(t);
+        osc.stop(t + tone.d + 0.05);
+        offset += tone.d;
+      });
+    }
+
+    function playSound(kind) {
+      if (!settings.soundEnabled || settings.volume === 0) return;
+      ensureAudioCtx();
+      const fn = SOUND_PRESETS[settings.soundType] || SOUND_PRESETS.beep;
+      fn(kind);
+    }
+
+    function vibrate(pattern) {
+      if (!settings.vibrateEnabled) return;
+      if (navigator.vibrate) {
+        try { navigator.vibrate(pattern); } catch (e) {}
       }
     }
 
-    function playAlertSound() { playBeep(660, 0.2, 2); }
-    function playFinishSound() { playBeep(1046, 0.18, 4); }
-    function playBreakEndSound() { playBeep(784, 0.15, 2); }
+    function playAlertSound()    { playSound('alert');    vibrate([200, 100, 200]); }
+    function playFinishSound()   { playSound('finish');   vibrate([300, 100, 300, 100, 500]); }
+    function playBreakEndSound() { playSound('breakEnd'); vibrate([150, 80, 150]); }
 
     // ===== DOM =====
     const $ = id => document.getElementById(id);
@@ -737,10 +1264,21 @@
     const timerScreen = $('timerScreen');
     const finishScreen = $('finishScreen');
     const soundToggle = $('soundToggle');
+    const settingsToggle = $('settingsToggle');
+    const settingsModal = $('settingsModal');
+    const modalCloseBtn = $('modalCloseBtn');
+    const soundTypeGrid = $('soundTypeGrid');
+    const volumeSlider = $('volumeSlider');
+    const volumeValue = $('volumeValue');
+    const volumeIcon = $('volumeIcon');
+    const vibrateToggle = $('vibrateToggle');
     const presetGrid = $('presetGrid');
     const customH = $('customHours');
     const customM = $('customMinutes');
     const customS = $('customSeconds');
+    const savePresetBtn = $('savePresetBtn');
+    const myPresetsEmpty = $('myPresetsEmpty');
+    const myPresetsGrid = $('myPresetsGrid');
     const intervalInput = $('intervalCount');
     const breakInput = $('breakSeconds');
     const startBtn = $('startBtn');
@@ -759,12 +1297,166 @@
     progressCircle.style.strokeDasharray = circumference;
     progressCircle.style.strokeDashoffset = 0;
 
-    // ===== Sound Toggle =====
+    // ===== Initialize UI from settings =====
+    function applySettingsToUI() {
+      // Sound toggle button
+      soundToggle.textContent = settings.soundEnabled ? '🔔' : '🔕';
+      // Sound type buttons
+      soundTypeGrid.querySelectorAll('.sound-type-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.sound === settings.soundType);
+      });
+      // Volume slider
+      volumeSlider.value = Math.round(settings.volume * 100);
+      updateVolumeUI();
+      // Vibration toggle
+      vibrateToggle.checked = settings.vibrateEnabled;
+    }
+
+    function updateVolumeUI() {
+      const v = parseInt(volumeSlider.value);
+      volumeValue.textContent = `${v}%`;
+      if (v === 0) volumeIcon.textContent = '🔇';
+      else if (v < 34) volumeIcon.textContent = '🔈';
+      else if (v < 67) volumeIcon.textContent = '🔉';
+      else volumeIcon.textContent = '🔊';
+    }
+
+    // ===== Sound Toggle (header button) =====
     soundToggle.addEventListener('click', () => {
-      soundEnabled = !soundEnabled;
-      soundToggle.textContent = soundEnabled ? '🔔' : '🔕';
-      showToast(soundEnabled ? '通知音 ON' : '通知音 OFF');
+      settings.soundEnabled = !settings.soundEnabled;
+      soundToggle.textContent = settings.soundEnabled ? '🔔' : '🔕';
+      saveSettings();
+      showToast(settings.soundEnabled ? '通知音 ON' : '通知音 OFF');
     });
+
+    // ===== Settings Modal =====
+    settingsToggle.addEventListener('click', () => {
+      ensureAudioCtx();
+      settingsModal.classList.add('show');
+    });
+    modalCloseBtn.addEventListener('click', () => {
+      settingsModal.classList.remove('show');
+    });
+    settingsModal.addEventListener('click', (e) => {
+      if (e.target === settingsModal) settingsModal.classList.remove('show');
+    });
+
+    // Sound type selection
+    soundTypeGrid.querySelectorAll('.sound-type-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        // If preview button was clicked, just preview
+        if (e.target.classList.contains('preview-btn')) {
+          e.stopPropagation();
+          ensureAudioCtx();
+          const oldType = settings.soundType;
+          settings.soundType = e.target.dataset.preview;
+          playSound('alert');
+          settings.soundType = oldType;
+          return;
+        }
+        soundTypeGrid.querySelectorAll('.sound-type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        settings.soundType = btn.dataset.sound;
+        saveSettings();
+        ensureAudioCtx();
+        playSound('alert'); // preview on selection
+      });
+    });
+
+    // Volume slider
+    volumeSlider.addEventListener('input', () => {
+      settings.volume = parseInt(volumeSlider.value) / 100;
+      updateVolumeUI();
+      saveSettings();
+    });
+    volumeSlider.addEventListener('change', () => {
+      ensureAudioCtx();
+      playSound('alert'); // preview after release
+    });
+
+    // Vibration toggle
+    vibrateToggle.addEventListener('change', () => {
+      settings.vibrateEnabled = vibrateToggle.checked;
+      saveSettings();
+      if (settings.vibrateEnabled) vibrate([100, 50, 100]);
+    });
+
+    // ===== My Presets =====
+    function renderMyPresets() {
+      if (myPresets.length === 0) {
+        myPresetsEmpty.style.display = 'block';
+        myPresetsGrid.style.display = 'none';
+        myPresetsGrid.innerHTML = '';
+        return;
+      }
+      myPresetsEmpty.style.display = 'none';
+      myPresetsGrid.style.display = 'grid';
+      myPresetsGrid.innerHTML = '';
+      myPresets.forEach((p, idx) => {
+        const btn = document.createElement('div');
+        btn.className = 'my-preset-btn';
+        btn.dataset.minutes = Math.floor(p.totalSec / 60);
+        btn.dataset.seconds = p.totalSec % 60;
+        btn.innerHTML = `
+          <div class="my-preset-name">${escapeHtml(p.name)}</div>
+          <div class="my-preset-time">${formatTime(p.totalSec)}</div>
+          <button class="my-preset-delete" data-idx="${idx}" title="削除">×</button>
+        `;
+        btn.addEventListener('click', (e) => {
+          if (e.target.classList.contains('my-preset-delete')) {
+            e.stopPropagation();
+            const i = parseInt(e.target.dataset.idx);
+            if (confirm(`「${myPresets[i].name}」を削除しますか？`)) {
+              myPresets.splice(i, 1);
+              saveMyPresets();
+              renderMyPresets();
+              showToast('🗑 削除しました');
+            }
+            return;
+          }
+          // Select this custom preset
+          presetBtns.forEach(b => b.classList.remove('selected'));
+          myPresetsGrid.querySelectorAll('.my-preset-btn').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          customH.value = Math.floor(p.totalSec / 3600);
+          customM.value = Math.floor((p.totalSec % 3600) / 60);
+          customS.value = p.totalSec % 60;
+          // Set as selectedPreset with custom name
+          selectedPreset = {
+            querySelector: (sel) => {
+              if (sel === '.preset-category') return { textContent: 'マイプリセット' };
+              if (sel === '.preset-name') return { textContent: p.name };
+              return null;
+            }
+          };
+        });
+        myPresetsGrid.appendChild(btn);
+      });
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+    }
+
+    savePresetBtn.addEventListener('click', () => {
+      const h = parseInt(customH.value) || 0;
+      const m = parseInt(customM.value) || 0;
+      const s = parseInt(customS.value) || 0;
+      const totalSec = h * 3600 + m * 60 + s;
+      if (totalSec <= 0) {
+        showToast('⚠️ 時間を入力してください');
+        return;
+      }
+      const name = prompt('プリセット名を入力してください', formatTime(totalSec));
+      if (!name) return;
+      myPresets.push({ name: name.slice(0, 30), totalSec });
+      saveMyPresets();
+      renderMyPresets();
+      showToast('✅ プリセットを保存しました');
+    });
+
+    applySettingsToUI();
+    renderMyPresets();
 
     // ===== Preset Selection =====
     const presetBtns = presetGrid.querySelectorAll('.preset-btn');
@@ -820,6 +1512,7 @@
     [customH, customM, customS].forEach(input => {
       input.addEventListener('input', () => {
         presetBtns.forEach(b => b.classList.remove('selected'));
+        myPresetsGrid.querySelectorAll('.my-preset-btn').forEach(b => b.classList.remove('selected'));
         selectedPreset = null;
       });
     });
