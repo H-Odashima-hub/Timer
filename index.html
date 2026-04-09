@@ -1230,14 +1230,6 @@
               <span>📣 ホイッスル</span>
               <span class="preview-btn" data-preview="whistle">▶</span>
             </button>
-            <button class="sound-type-btn" data-sound="trumpet">
-              <span>🎺 トランペット</span>
-              <span class="preview-btn" data-preview="trumpet">▶</span>
-            </button>
-            <button class="sound-type-btn" data-sound="bigben">
-              <span>🏫 ビッグベン</span>
-              <span class="preview-btn" data-preview="bigben">▶</span>
-            </button>
             <button class="sound-type-btn" data-sound="cuckoo">
               <span>🐦 カッコー</span>
               <span class="preview-btn" data-preview="cuckoo">▶</span>
@@ -1326,7 +1318,7 @@
     // Per-kind sound selection.
     // Each kind ('alert' | 'breakEnd' | 'finish') can have its own sound preset.
     const VALID_SOUNDS = new Set([
-      'beep','digital','marimba','piano','siren','whistle','trumpet','bigben',
+      'beep','digital','marimba','piano','siren','whistle',
       'cuckoo','phone','carhorn','intercom'
     ]);
     const defaultSettings = {
@@ -1545,39 +1537,6 @@
         else if (kind === 'finish') playSequence([{f:2637,d:0.1},{f:2637,d:0.1,gap:0.05},{f:2637,d:0.1,gap:0.05},{f:2637,d:0.1,gap:0.05},{f:2637,d:0.55,gap:0.08}], 'square', 0.8);
         else                        playSequence([{f:2637,d:0.15},{f:2637,d:0.35,gap:0.08}], 'square', 0.8);
       },
-      trumpet: (kind) => {
-        // Sawtooth fanfare - triumphant rising passage, very festive
-        if (kind === 'alert') {
-          playSequence([{f:523,d:0.15},{f:659,d:0.15,gap:0.02},{f:784,d:0.32,gap:0.02}], 'sawtooth', 0.9);
-        } else if (kind === 'finish') {
-          // Rising triadic fanfare culminating in a sustained chord
-          playChord([523, 659],        0.2, 'sawtooth', 0.0,  0.9);
-          playChord([587, 740],        0.2, 'sawtooth', 0.22, 0.9);
-          playChord([659, 831],        0.2, 'sawtooth', 0.44, 0.9);
-          playChord([784, 988, 1175],  0.7, 'sawtooth', 0.66, 0.9);
-        } else {
-          playSequence([{f:523,d:0.15},{f:659,d:0.15,gap:0.02},{f:784,d:0.15,gap:0.02},{f:1047,d:0.3,gap:0.02}], 'sawtooth', 0.9);
-        }
-      },
-      bigben: (kind) => {
-        // Westminster quarter chime: the classic 4-note phrase (E D C G).
-        // Instantly recognizable, warm triangle wave.
-        if (kind === 'alert') {
-          // Short 2-note phrase: E C
-          playSequence([{f:659,d:0.4},{f:523,d:0.55,gap:0.05}], 'triangle', 1.2);
-        } else if (kind === 'finish') {
-          // Full Westminster quarter: E C D G
-          playSequence([
-            {f:659,d:0.4},
-            {f:523,d:0.4,gap:0.05},
-            {f:587,d:0.4,gap:0.05},
-            {f:392,d:0.9,gap:0.05}
-          ], 'triangle', 1.2);
-        } else {
-          // Return phrase: D G
-          playSequence([{f:587,d:0.4},{f:392,d:0.7,gap:0.05}], 'triangle', 1.2);
-        }
-      },
       cuckoo: (kind) => {
         // Cuckoo clock: descending minor third "kak-koo" (G5 -> E5).
         // Warm sine wave, soft and recognizable.
@@ -1694,8 +1653,6 @@
       piano:    '🎹 ピアノ',
       siren:    '🚨 サイレン',
       whistle:  '📣 ホイッスル',
-      trumpet:  '🎺 トランペット',
-      bigben:   '🏫 ビッグベン',
       cuckoo:   '🐦 カッコー',
       phone:    '📞 電話',
       carhorn:  '🚗 クラクション',
