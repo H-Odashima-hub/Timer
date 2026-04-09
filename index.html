@@ -1238,6 +1238,30 @@
               <span>🏫 ビッグベン</span>
               <span class="preview-btn" data-preview="bigben">▶</span>
             </button>
+            <button class="sound-type-btn" data-sound="cuckoo">
+              <span>🐦 カッコー</span>
+              <span class="preview-btn" data-preview="cuckoo">▶</span>
+            </button>
+            <button class="sound-type-btn" data-sound="doorbell">
+              <span>🚪 ドアベル</span>
+              <span class="preview-btn" data-preview="doorbell">▶</span>
+            </button>
+            <button class="sound-type-btn" data-sound="microwave">
+              <span>📡 レンジ</span>
+              <span class="preview-btn" data-preview="microwave">▶</span>
+            </button>
+            <button class="sound-type-btn" data-sound="phone">
+              <span>📞 電話</span>
+              <span class="preview-btn" data-preview="phone">▶</span>
+            </button>
+            <button class="sound-type-btn" data-sound="carhorn">
+              <span>🚗 クラクション</span>
+              <span class="preview-btn" data-preview="carhorn">▶</span>
+            </button>
+            <button class="sound-type-btn" data-sound="intercom">
+              <span>🔔 玄関チャイム</span>
+              <span class="preview-btn" data-preview="intercom">▶</span>
+            </button>
           </div>
         </div>
 
@@ -1310,7 +1334,8 @@
     // Per-kind sound selection.
     // Each kind ('alert' | 'breakEnd' | 'finish') can have its own sound preset.
     const VALID_SOUNDS = new Set([
-      'beep','digital','marimba','piano','siren','whistle','trumpet','bigben'
+      'beep','digital','marimba','piano','siren','whistle','trumpet','bigben',
+      'cuckoo','doorbell','microwave','phone','carhorn','intercom'
     ]);
     const defaultSettings = {
       soundEnabled: true,
@@ -1560,6 +1585,128 @@
           // Return phrase: D G
           playSequence([{f:587,d:0.4},{f:392,d:0.7,gap:0.05}], 'triangle', 1.2);
         }
+      },
+      cuckoo: (kind) => {
+        // Cuckoo clock: descending minor third "kak-koo" (G5 -> E5).
+        // Warm sine wave, soft and recognizable.
+        if (kind === 'alert') {
+          playSequence([{f:784,d:0.3},{f:659,d:0.45,gap:0.04}], 'sine', 1.1);
+        } else if (kind === 'finish') {
+          playSequence([
+            {f:784,d:0.28},{f:659,d:0.4,gap:0.04},
+            {f:784,d:0.28,gap:0.12},{f:659,d:0.4,gap:0.04},
+            {f:784,d:0.28,gap:0.12},{f:659,d:0.55,gap:0.04}
+          ], 'sine', 1.1);
+        } else {
+          playSequence([
+            {f:784,d:0.28},{f:659,d:0.4,gap:0.04},
+            {f:784,d:0.28,gap:0.12},{f:659,d:0.45,gap:0.04}
+          ], 'sine', 1.1);
+        }
+      },
+      doorbell: (kind) => {
+        // Western brass doorbell: high E6 (~1318Hz) ringing with long decay.
+        // Triangle wave for a metallic bell timbre.
+        if (kind === 'alert') {
+          playSequence([{f:1318,d:0.7}], 'triangle', 1.2);
+        } else if (kind === 'finish') {
+          playSequence([
+            {f:1318,d:0.55},
+            {f:1318,d:0.55,gap:0.12},
+            {f:1318,d:0.85,gap:0.12}
+          ], 'triangle', 1.2);
+        } else {
+          playSequence([
+            {f:1318,d:0.55},
+            {f:1318,d:0.7,gap:0.12}
+          ], 'triangle', 1.2);
+        }
+      },
+      microwave: (kind) => {
+        // Microwave finished beep: short, sharp 2kHz square pulses.
+        if (kind === 'alert') {
+          playSequence([
+            {f:2000,d:0.12},
+            {f:2000,d:0.12,gap:0.1},
+            {f:2000,d:0.12,gap:0.1}
+          ], 'square', 0.85);
+        } else if (kind === 'finish') {
+          playSequence([
+            {f:2000,d:0.12},
+            {f:2000,d:0.12,gap:0.1},
+            {f:2000,d:0.12,gap:0.1},
+            {f:2000,d:0.12,gap:0.1},
+            {f:2000,d:0.4,gap:0.1}
+          ], 'square', 0.85);
+        } else {
+          playSequence([
+            {f:2000,d:0.12},
+            {f:2000,d:0.12,gap:0.1},
+            {f:2000,d:0.12,gap:0.1},
+            {f:2000,d:0.12,gap:0.1}
+          ], 'square', 0.85);
+        }
+      },
+      phone: (kind) => {
+        // Old telephone ringer: rapid alternation between two close
+        // frequencies (~1100/1400Hz) producing the classic "rrring" warble.
+        if (kind === 'alert') {
+          playSequence([
+            {f:1100,d:0.07},{f:1400,d:0.07},
+            {f:1100,d:0.07},{f:1400,d:0.07},
+            {f:1100,d:0.07},{f:1400,d:0.07},
+            {f:1100,d:0.07},{f:1400,d:0.07}
+          ], 'sine', 1.0);
+        } else if (kind === 'finish') {
+          for (let i = 0; i < 3; i++) {
+            const tones = [];
+            for (let j = 0; j < 8; j++) {
+              tones.push({f: j % 2 === 0 ? 1100 : 1400, d: 0.07, gap: (j === 0 && i > 0) ? 0.25 : 0});
+            }
+            playSequence(tones, 'sine', 1.0);
+          }
+        } else {
+          playSequence([
+            {f:1100,d:0.07},{f:1400,d:0.07},
+            {f:1100,d:0.07},{f:1400,d:0.07},
+            {f:1100,d:0.07},{f:1400,d:0.07},
+            {f:1100,d:0.07},{f:1400,d:0.07},
+            {f:1100,d:0.07,gap:0.18},{f:1400,d:0.07},
+            {f:1100,d:0.07},{f:1400,d:0.07},
+            {f:1100,d:0.07},{f:1400,d:0.07},
+            {f:1100,d:0.07},{f:1400,d:0.07}
+          ], 'sine', 1.0);
+        }
+      },
+      carhorn: (kind) => {
+        // Car horn: dense sawtooth dyad (~350Hz + 440Hz, dissonant minor 3rd).
+        if (kind === 'alert') {
+          playChord([350, 440], 0.45, 'sawtooth', 0, 0.9);
+        } else if (kind === 'finish') {
+          playChord([350, 440], 0.18, 'sawtooth', 0.0,  0.9);
+          playChord([350, 440], 0.18, 'sawtooth', 0.3,  0.9);
+          playChord([350, 440], 0.9,  'sawtooth', 0.6,  0.9);
+        } else {
+          playChord([350, 440], 0.2, 'sawtooth', 0.0, 0.9);
+          playChord([350, 440], 0.4, 'sawtooth', 0.3, 0.9);
+        }
+      },
+      intercom: (kind) => {
+        // Japanese intercom "pin-pon": two clean sine tones, E5 -> C5.
+        if (kind === 'alert') {
+          playSequence([{f:659,d:0.32},{f:523,d:0.45,gap:0.05}], 'sine', 1.1);
+        } else if (kind === 'finish') {
+          playSequence([
+            {f:659,d:0.3},{f:523,d:0.4,gap:0.05},
+            {f:659,d:0.3,gap:0.15},{f:523,d:0.4,gap:0.05},
+            {f:659,d:0.3,gap:0.15},{f:523,d:0.55,gap:0.05}
+          ], 'sine', 1.1);
+        } else {
+          playSequence([
+            {f:659,d:0.3},{f:523,d:0.4,gap:0.05},
+            {f:659,d:0.3,gap:0.15},{f:523,d:0.45,gap:0.05}
+          ], 'sine', 1.1);
+        }
       }
     };
 
@@ -1592,14 +1739,20 @@
 
     // Map for displaying preset names in UI
     const SOUND_LABELS = {
-      beep:    '🔔 ビープ',
-      digital: '📟 デジタル',
-      marimba: '🎶 マリンバ',
-      piano:   '🎹 ピアノ',
-      siren:   '🚨 サイレン',
-      whistle: '📣 ホイッスル',
-      trumpet: '🎺 トランペット',
-      bigben:  '🏫 ビッグベン'
+      beep:      '🔔 ビープ',
+      digital:   '📟 デジタル',
+      marimba:   '🎶 マリンバ',
+      piano:     '🎹 ピアノ',
+      siren:     '🚨 サイレン',
+      whistle:   '📣 ホイッスル',
+      trumpet:   '🎺 トランペット',
+      bigben:    '🏫 ビッグベン',
+      cuckoo:    '🐦 カッコー',
+      doorbell:  '🚪 ドアベル',
+      microwave: '📡 レンジ',
+      phone:     '📞 電話',
+      carhorn:   '🚗 クラクション',
+      intercom:  '🔔 玄関チャイム'
     };
 
     function playSound(kind) {
