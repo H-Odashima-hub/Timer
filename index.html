@@ -1238,6 +1238,22 @@
               <span>💫 ディン</span>
               <span class="preview-btn" data-preview="ding">▶</span>
             </button>
+            <button class="sound-type-btn" data-sound="siren">
+              <span>🚨 サイレン</span>
+              <span class="preview-btn" data-preview="siren">▶</span>
+            </button>
+            <button class="sound-type-btn" data-sound="whistle">
+              <span>📣 ホイッスル</span>
+              <span class="preview-btn" data-preview="whistle">▶</span>
+            </button>
+            <button class="sound-type-btn" data-sound="trumpet">
+              <span>🎺 トランペット</span>
+              <span class="preview-btn" data-preview="trumpet">▶</span>
+            </button>
+            <button class="sound-type-btn" data-sound="bigben">
+              <span>🏫 ビッグベン</span>
+              <span class="preview-btn" data-preview="bigben">▶</span>
+            </button>
           </div>
         </div>
 
@@ -1415,6 +1431,28 @@
     }
 
     /**
+     * Play a pitch sweep - oscillator frequency is ramped from `fromFreq`
+     * to `toFreq` over `duration`. Produces a siren / klaxon effect that
+     * is very hard to miss.
+     */
+    function playSweep(fromFreq, toFreq, duration, type, startOffset = 0, volMultiplier = 1) {
+      const t = audioCtx.currentTime + startOffset;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(fromFreq, t);
+      osc.frequency.exponentialRampToValueAtTime(Math.max(1, toFreq), t + duration);
+      const peak = Math.max(0.0001, settings.volume * 0.6 * volMultiplier);
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(peak, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + duration + 0.05);
+    }
+
+    /**
      * Play multiple frequencies simultaneously (chord).
      * freqs: array of Hz values
      * duration: tone duration in seconds
@@ -1495,6 +1533,61 @@
         if (kind === 'alert')      playSequence([{f:1318,d:0.6}], 'sine', 1.3);
         else if (kind === 'finish') playSequence([{f:1318,d:0.3},{f:1568,d:0.3,gap:0.04},{f:2093,d:0.85,gap:0.04}], 'sine', 1.3);
         else                        playSequence([{f:1047,d:0.5}], 'sine', 1.2);
+      },
+      siren: (kind) => {
+        // Pitch sweep - emergency siren style, extremely attention-grabbing
+        if (kind === 'alert') {
+          playSweep(600,  1200, 0.35, 'sawtooth', 0,    0.9);
+          playSweep(1200, 600,  0.35, 'sawtooth', 0.35, 0.9);
+        } else if (kind === 'finish') {
+          playSweep(500,  1400, 0.3,  'sawtooth', 0.0, 0.9);
+          playSweep(1400, 500,  0.3,  'sawtooth', 0.3, 0.9);
+          playSweep(500,  1400, 0.3,  'sawtooth', 0.6, 0.9);
+          playSweep(1400, 500,  0.5,  'sawtooth', 0.9, 0.9);
+        } else {
+          playSweep(800, 1400, 0.3, 'sawtooth', 0,   0.9);
+          playSweep(1400, 800, 0.3, 'sawtooth', 0.3, 0.9);
+        }
+      },
+      whistle: (kind) => {
+        // Sharp pulsed high tone around 2.6kHz - referee whistle style.
+        // Sits right in the peak of human hearing sensitivity.
+        if (kind === 'alert')      playSequence([{f:2637,d:0.12},{f:2637,d:0.12,gap:0.06},{f:2637,d:0.28,gap:0.06}], 'square', 0.8);
+        else if (kind === 'finish') playSequence([{f:2637,d:0.1},{f:2637,d:0.1,gap:0.05},{f:2637,d:0.1,gap:0.05},{f:2637,d:0.1,gap:0.05},{f:2637,d:0.55,gap:0.08}], 'square', 0.8);
+        else                        playSequence([{f:2637,d:0.15},{f:2637,d:0.35,gap:0.08}], 'square', 0.8);
+      },
+      trumpet: (kind) => {
+        // Sawtooth fanfare - triumphant rising passage, very festive
+        if (kind === 'alert') {
+          playSequence([{f:523,d:0.15},{f:659,d:0.15,gap:0.02},{f:784,d:0.32,gap:0.02}], 'sawtooth', 0.9);
+        } else if (kind === 'finish') {
+          // Rising triadic fanfare culminating in a sustained chord
+          playChord([523, 659],        0.2, 'sawtooth', 0.0,  0.9);
+          playChord([587, 740],        0.2, 'sawtooth', 0.22, 0.9);
+          playChord([659, 831],        0.2, 'sawtooth', 0.44, 0.9);
+          playChord([784, 988, 1175],  0.7, 'sawtooth', 0.66, 0.9);
+        } else {
+          playSequence([{f:523,d:0.15},{f:659,d:0.15,gap:0.02},{f:784,d:0.15,gap:0.02},{f:1047,d:0.3,gap:0.02}], 'sawtooth', 0.9);
+        }
+      },
+      bigben: (kind) => {
+        // Westminster quarter chime: the classic 4-note phrase (E D C G).
+        // Instantly recognizable, warm triangle wave.
+        if (kind === 'alert') {
+          // Short 2-note phrase: E C
+          playSequence([{f:659,d:0.4},{f:523,d:0.55,gap:0.05}], 'triangle', 1.2);
+        } else if (kind === 'finish') {
+          // Full Westminster quarter: E C D G
+          playSequence([
+            {f:659,d:0.4},
+            {f:523,d:0.4,gap:0.05},
+            {f:587,d:0.4,gap:0.05},
+            {f:392,d:0.9,gap:0.05}
+          ], 'triangle', 1.2);
+        } else {
+          // Return phrase: D G
+          playSequence([{f:587,d:0.4},{f:392,d:0.7,gap:0.05}], 'triangle', 1.2);
+        }
       }
     };
 
@@ -1534,7 +1627,11 @@
       marimba: '🎶 マリンバ',
       piano:   '🎹 ピアノ',
       alarm:   '⏰ アラーム',
-      ding:    '💫 ディン'
+      ding:    '💫 ディン',
+      siren:   '🚨 サイレン',
+      whistle: '📣 ホイッスル',
+      trumpet: '🎺 トランペット',
+      bigben:  '🏫 ビッグベン'
     };
 
     function playSound(kind) {
