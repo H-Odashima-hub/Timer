@@ -1242,14 +1242,6 @@
               <span>🐦 カッコー</span>
               <span class="preview-btn" data-preview="cuckoo">▶</span>
             </button>
-            <button class="sound-type-btn" data-sound="doorbell">
-              <span>🚪 ドアベル</span>
-              <span class="preview-btn" data-preview="doorbell">▶</span>
-            </button>
-            <button class="sound-type-btn" data-sound="microwave">
-              <span>📡 レンジ</span>
-              <span class="preview-btn" data-preview="microwave">▶</span>
-            </button>
             <button class="sound-type-btn" data-sound="phone">
               <span>📞 電話</span>
               <span class="preview-btn" data-preview="phone">▶</span>
@@ -1335,7 +1327,7 @@
     // Each kind ('alert' | 'breakEnd' | 'finish') can have its own sound preset.
     const VALID_SOUNDS = new Set([
       'beep','digital','marimba','piano','siren','whistle','trumpet','bigben',
-      'cuckoo','doorbell','microwave','phone','carhorn','intercom'
+      'cuckoo','phone','carhorn','intercom'
     ]);
     const defaultSettings = {
       soundEnabled: true,
@@ -1604,49 +1596,6 @@
           ], 'sine', 1.1);
         }
       },
-      doorbell: (kind) => {
-        // Western brass doorbell: high E6 (~1318Hz) ringing with long decay.
-        // Triangle wave for a metallic bell timbre.
-        if (kind === 'alert') {
-          playSequence([{f:1318,d:0.7}], 'triangle', 1.2);
-        } else if (kind === 'finish') {
-          playSequence([
-            {f:1318,d:0.55},
-            {f:1318,d:0.55,gap:0.12},
-            {f:1318,d:0.85,gap:0.12}
-          ], 'triangle', 1.2);
-        } else {
-          playSequence([
-            {f:1318,d:0.55},
-            {f:1318,d:0.7,gap:0.12}
-          ], 'triangle', 1.2);
-        }
-      },
-      microwave: (kind) => {
-        // Microwave finished beep: short, sharp 2kHz square pulses.
-        if (kind === 'alert') {
-          playSequence([
-            {f:2000,d:0.12},
-            {f:2000,d:0.12,gap:0.1},
-            {f:2000,d:0.12,gap:0.1}
-          ], 'square', 0.85);
-        } else if (kind === 'finish') {
-          playSequence([
-            {f:2000,d:0.12},
-            {f:2000,d:0.12,gap:0.1},
-            {f:2000,d:0.12,gap:0.1},
-            {f:2000,d:0.12,gap:0.1},
-            {f:2000,d:0.4,gap:0.1}
-          ], 'square', 0.85);
-        } else {
-          playSequence([
-            {f:2000,d:0.12},
-            {f:2000,d:0.12,gap:0.1},
-            {f:2000,d:0.12,gap:0.1},
-            {f:2000,d:0.12,gap:0.1}
-          ], 'square', 0.85);
-        }
-      },
       phone: (kind) => {
         // Old telephone ringer: rapid alternation between two close
         // frequencies (~1100/1400Hz) producing the classic "rrring" warble.
@@ -1739,20 +1688,18 @@
 
     // Map for displaying preset names in UI
     const SOUND_LABELS = {
-      beep:      '🔔 ビープ',
-      digital:   '📟 デジタル',
-      marimba:   '🎶 マリンバ',
-      piano:     '🎹 ピアノ',
-      siren:     '🚨 サイレン',
-      whistle:   '📣 ホイッスル',
-      trumpet:   '🎺 トランペット',
-      bigben:    '🏫 ビッグベン',
-      cuckoo:    '🐦 カッコー',
-      doorbell:  '🚪 ドアベル',
-      microwave: '📡 レンジ',
-      phone:     '📞 電話',
-      carhorn:   '🚗 クラクション',
-      intercom:  '🔔 玄関チャイム'
+      beep:     '🔔 ビープ',
+      digital:  '📟 デジタル',
+      marimba:  '🎶 マリンバ',
+      piano:    '🎹 ピアノ',
+      siren:    '🚨 サイレン',
+      whistle:  '📣 ホイッスル',
+      trumpet:  '🎺 トランペット',
+      bigben:   '🏫 ビッグベン',
+      cuckoo:   '🐦 カッコー',
+      phone:    '📞 電話',
+      carhorn:  '🚗 クラクション',
+      intercom: '🔔 玄関チャイム'
     };
 
     function playSound(kind) {
