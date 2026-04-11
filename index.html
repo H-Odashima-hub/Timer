@@ -275,32 +275,38 @@
     }
 
     /* Alert settings */
-    .alert-options {
+    .alert-slider-group {
       margin-top: 12px;
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .alert-chip {
-      display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      border: 2px solid var(--border);
-      border-radius: 20px;
+      gap: 12px;
+    }
+    .alert-slider {
+      flex: 1;
+      height: 6px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: var(--border);
+      border-radius: 3px;
+      outline: none;
+    }
+    .alert-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--warning);
       cursor: pointer;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--text-light);
-      transition: all 0.2s;
-      user-select: none;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
-    .alert-chip.active {
-      border-color: var(--warning);
-      background: #fffbeb;
-      color: #b45309;
+    .alert-slider-value {
+      min-width: 60px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--warning);
     }
-    .alert-chip input { display: none; }
 
     /* Start Button */
     .start-btn {
@@ -1117,19 +1123,12 @@
         <div class="option-row">
           <div class="option-label-group">
             <span class="option-label">⚠️ 残り時間アラート</span>
-            <span class="option-desc">指定時間でアラート通知</span>
+            <span class="option-desc">指定時間でアラート通知（0で無効）</span>
           </div>
         </div>
-        <div class="alert-options" id="alertOptions">
-          <label class="alert-chip active">
-            <input type="checkbox" value="60" checked> 1分前
-          </label>
-          <label class="alert-chip active">
-            <input type="checkbox" value="30" checked> 30秒前
-          </label>
-          <label class="alert-chip">
-            <input type="checkbox" value="10"> 10秒前
-          </label>
+        <div class="alert-slider-group" id="alertSliderGroup">
+          <input type="range" class="alert-slider" id="alertSlider" min="0" max="300" step="5" value="60">
+          <span class="alert-slider-value" id="alertSliderValue">1分前</span>
         </div>
       </div>
 
@@ -1992,16 +1991,24 @@
       });
     });
 
-    // ===== Alert Chips =====
-    document.querySelectorAll('.alert-chip').forEach(chip => {
-      chip.addEventListener('click', (e) => {
-        // Toggle is handled by checkbox, just update style
-        setTimeout(() => {
-          const cb = chip.querySelector('input');
-          chip.classList.toggle('active', cb.checked);
-        }, 0);
-      });
-    });
+    // ===== Alert Slider =====
+    const alertSlider = $('alertSlider');
+    const alertSliderValue = $('alertSliderValue');
+
+    function updateAlertSliderLabel() {
+      const v = parseInt(alertSlider.value);
+      if (v === 0) {
+        alertSliderValue.textContent = 'OFF';
+      } else if (v >= 60) {
+        const m = Math.floor(v / 60);
+        const s = v % 60;
+        alertSliderValue.textContent = s > 0 ? `${m}分${s}秒前` : `${m}分前`;
+      } else {
+        alertSliderValue.textContent = `${v}秒前`;
+      }
+    }
+
+    alertSlider.addEventListener('input', updateAlertSliderLabel);
 
     // ===== Screens =====
     function showScreen(screen) {
@@ -2072,12 +2079,12 @@
       isBreak = false;
       alertsFired = new Set();
 
-      // Gather alert thresholds
+      // Gather alert threshold from slider
       alertThresholds = [];
-      document.querySelectorAll('.alert-chip input:checked').forEach(cb => {
-        const val = parseInt(cb.value);
-        if (val < workDurationSec) alertThresholds.push(val);
-      });
+      const alertVal = parseInt(alertSlider.value) || 0;
+      if (alertVal > 0 && alertVal < workDurationSec) {
+        alertThresholds.push(alertVal);
+      }
 
       // Determine display names
       if (selectedPreset) {
@@ -2184,20 +2191,21 @@
 
     resetBtn.addEventListener('click', () => {
       // Reset to the very first work session (Set 1 of N)
+      // Stay paused so user must press ▶ to resume
       totalSeconds = workDurationSec;
       remainingSeconds = workDurationSec;
       alertsFired = new Set();
-      isPaused = false;
+      isPaused = true;
       isBreak = false;
       currentSet = 1;
-      pauseBtn.textContent = '⏸';
-      pauseBtn.classList.remove('paused');
+      pauseBtn.textContent = '▶';
+      pauseBtn.classList.add('paused');
       timerModeName.textContent = modeName;
       if (totalSets > 1) {
         intervalBadge.textContent = `${currentSet} / ${totalSets} セット`;
       }
       updateDisplay();
-      showToast('↺ リセット');
+      showToast('↺ リセット（▶で再開）');
     });
 
     stopBtn.addEventListener('click', () => {
