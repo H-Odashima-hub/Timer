@@ -307,8 +307,8 @@
       flex-shrink: 0;
     }
     .alert-number {
-      width: 52px;
-      padding: 4px 6px;
+      width: 40px;
+      padding: 4px 4px;
       border: 2px solid var(--border);
       border-radius: 8px;
       font-size: 0.85rem;
@@ -1155,8 +1155,10 @@
         <div class="alert-slider-group" id="alertSliderGroup">
           <input type="range" class="alert-slider" id="alertSlider" min="0" max="1800" step="5" value="60">
           <div class="alert-input-group">
-            <input type="number" class="alert-number" id="alertNumber" min="0" max="30" value="1" inputmode="numeric">
-            <span class="alert-unit">分前</span>
+            <input type="number" class="alert-number" id="alertMinutes" min="0" max="30" value="1" inputmode="numeric">
+            <span class="alert-unit">分</span>
+            <input type="number" class="alert-number alert-number-sec" id="alertSeconds" min="0" max="59" value="0" inputmode="numeric">
+            <span class="alert-unit">秒前</span>
           </div>
         </div>
       </div>
@@ -2020,29 +2022,38 @@
       });
     });
 
-    // ===== Alert Slider + Number Input =====
+    // ===== Alert Slider + Min/Sec Inputs =====
     const alertSlider = $('alertSlider');
-    const alertNumber = $('alertNumber');
+    const alertMinutes = $('alertMinutes');
+    const alertSeconds = $('alertSeconds');
 
-    function syncAlertNumberFromSlider() {
-      const sec = parseInt(alertSlider.value) || 0;
-      alertNumber.value = Math.round(sec / 60 * 10) / 10; // show decimal for non-whole minutes
+    function syncAlertInputsFromSlider() {
+      const total = parseInt(alertSlider.value) || 0;
+      alertMinutes.value = Math.floor(total / 60);
+      alertSeconds.value = total % 60;
     }
 
-    function syncAlertSliderFromNumber() {
-      const min = parseFloat(alertNumber.value) || 0;
-      const sec = Math.round(Math.min(30, Math.max(0, min)) * 60);
-      alertSlider.value = sec;
+    function syncAlertSliderFromInputs() {
+      const m = Math.min(30, Math.max(0, parseInt(alertMinutes.value) || 0));
+      const s = Math.min(59, Math.max(0, parseInt(alertSeconds.value) || 0));
+      const total = Math.min(1800, m * 60 + s);
+      alertSlider.value = total;
     }
 
-    alertSlider.addEventListener('input', syncAlertNumberFromSlider);
-    alertNumber.addEventListener('input', syncAlertSliderFromNumber);
-    alertNumber.addEventListener('change', () => {
-      // Clamp on blur
-      let min = parseFloat(alertNumber.value) || 0;
-      min = Math.min(30, Math.max(0, min));
-      alertNumber.value = Math.round(min * 10) / 10;
-      syncAlertSliderFromNumber();
+    alertSlider.addEventListener('input', syncAlertInputsFromSlider);
+
+    alertMinutes.addEventListener('input', syncAlertSliderFromInputs);
+    alertSeconds.addEventListener('input', syncAlertSliderFromInputs);
+
+    alertMinutes.addEventListener('change', () => {
+      let v = parseInt(alertMinutes.value) || 0;
+      alertMinutes.value = Math.min(30, Math.max(0, v));
+      syncAlertSliderFromInputs();
+    });
+    alertSeconds.addEventListener('change', () => {
+      let v = parseInt(alertSeconds.value) || 0;
+      alertSeconds.value = Math.min(59, Math.max(0, v));
+      syncAlertSliderFromInputs();
     });
 
     // ===== Screens =====
