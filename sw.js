@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ct-timer-v15';
+const CACHE_NAME = 'ct-timer-v16';
 const ASSETS = [
   './',
   './index.html',
