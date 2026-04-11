@@ -300,12 +300,38 @@
       border: 2px solid #fff;
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
-    .alert-slider-value {
-      min-width: 60px;
-      text-align: center;
-      font-weight: 700;
+    .alert-input-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .alert-number {
+      width: 52px;
+      padding: 4px 6px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
       font-size: 0.85rem;
+      font-weight: 700;
+      text-align: center;
       color: var(--warning);
+      background: #fff;
+      outline: none;
+      -moz-appearance: textfield;
+    }
+    .alert-number::-webkit-inner-spin-button,
+    .alert-number::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .alert-number:focus {
+      border-color: var(--warning);
+    }
+    .alert-unit {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-light);
+      white-space: nowrap;
     }
 
     /* Start Button */
@@ -1128,7 +1154,10 @@
         </div>
         <div class="alert-slider-group" id="alertSliderGroup">
           <input type="range" class="alert-slider" id="alertSlider" min="0" max="1800" step="5" value="60">
-          <span class="alert-slider-value" id="alertSliderValue">1分前</span>
+          <div class="alert-input-group">
+            <input type="number" class="alert-number" id="alertNumber" min="0" max="30" value="1" inputmode="numeric">
+            <span class="alert-unit">分前</span>
+          </div>
         </div>
       </div>
 
@@ -1991,24 +2020,30 @@
       });
     });
 
-    // ===== Alert Slider =====
+    // ===== Alert Slider + Number Input =====
     const alertSlider = $('alertSlider');
-    const alertSliderValue = $('alertSliderValue');
+    const alertNumber = $('alertNumber');
 
-    function updateAlertSliderLabel() {
-      const v = parseInt(alertSlider.value);
-      if (v === 0) {
-        alertSliderValue.textContent = 'OFF';
-      } else if (v >= 60) {
-        const m = Math.floor(v / 60);
-        const s = v % 60;
-        alertSliderValue.textContent = s > 0 ? `${m}分${s}秒前` : `${m}分前`;
-      } else {
-        alertSliderValue.textContent = `${v}秒前`;
-      }
+    function syncAlertNumberFromSlider() {
+      const sec = parseInt(alertSlider.value) || 0;
+      alertNumber.value = Math.round(sec / 60 * 10) / 10; // show decimal for non-whole minutes
     }
 
-    alertSlider.addEventListener('input', updateAlertSliderLabel);
+    function syncAlertSliderFromNumber() {
+      const min = parseFloat(alertNumber.value) || 0;
+      const sec = Math.round(Math.min(30, Math.max(0, min)) * 60);
+      alertSlider.value = sec;
+    }
+
+    alertSlider.addEventListener('input', syncAlertNumberFromSlider);
+    alertNumber.addEventListener('input', syncAlertSliderFromNumber);
+    alertNumber.addEventListener('change', () => {
+      // Clamp on blur
+      let min = parseFloat(alertNumber.value) || 0;
+      min = Math.min(30, Math.max(0, min));
+      alertNumber.value = Math.round(min * 10) / 10;
+      syncAlertSliderFromNumber();
+    });
 
     // ===== Screens =====
     function showScreen(screen) {
