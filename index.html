@@ -1031,6 +1031,38 @@
       .timer-circle-wrapper { width: 240px; height: 240px; }
       .timer-time { font-size: 2.8rem; }
     }
+
+    /* ===== My Presets export/import row ===== */
+    .section-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      margin-top: 24px;
+    }
+    .section-label-row .section-label {
+      margin-bottom: 0;
+      margin-top: 0;
+    }
+    .preset-io-btns {
+      display: flex;
+      gap: 6px;
+    }
+    .preset-io-btn {
+      padding: 4px 10px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: var(--card);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-light);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .preset-io-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
   </style>
 </head>
 <body>
@@ -1107,7 +1139,14 @@
       </div>
 
       <!-- My Presets -->
-      <div class="section-label">⭐ マイプリセット</div>
+      <div class="section-label-row">
+        <div class="section-label">⭐ マイプリセット</div>
+        <div class="preset-io-btns">
+          <button class="preset-io-btn" id="exportPresetsBtn">📤 書き出し</button>
+          <button class="preset-io-btn" id="importPresetsBtn">📥 読み込み</button>
+          <input type="file" id="importFileInput" accept=".json" style="display:none;">
+        </div>
+      </div>
       <div id="myPresetsContainer">
         <div class="my-presets-empty" id="myPresetsEmpty">
           保存したプリセットはまだありません<br>
@@ -1992,6 +2031,69 @@
 
     applySettingsToUI();
     renderMyPresets();
+
+    // ===== Export / Import Presets =====
+    const exportPresetsBtn = $('exportPresetsBtn');
+    const importPresetsBtn = $('importPresetsBtn');
+    const importFileInput = $('importFileInput');
+
+    exportPresetsBtn.addEventListener('click', () => {
+      if (myPresets.length === 0) {
+        showToast('⚠️ 保存済みプリセットがありません');
+        return;
+      }
+      const data = JSON.stringify({ version: 1, myPresets }, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'ct-timer-presets.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('📤 エクスポートしました');
+    });
+
+    importPresetsBtn.addEventListener('click', () => {
+      importFileInput.click();
+    });
+
+    importFileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const parsed = JSON.parse(ev.target.result);
+          const incoming = parsed.myPresets;
+          if (!Array.isArray(incoming) || incoming.length === 0) throw new Error('invalid');
+          // Basic validation: each entry must have name and totalSec
+          if (!incoming.every(p => typeof p.name === 'string' && typeof p.totalSec === 'number')) {
+            throw new Error('invalid');
+          }
+          if (myPresets.length > 0) {
+            const merge = confirm(
+              `既存のプリセット ${myPresets.length} 件があります。\n\n` +
+              `[OK]     → 追加（既存を残す）\n` +
+              `[キャンセル] → 上書き（既存を削除）`
+            );
+            if (merge) {
+              myPresets.push(...incoming);
+            } else {
+              myPresets = incoming;
+            }
+          } else {
+            myPresets = incoming;
+          }
+          saveMyPresets();
+          renderMyPresets();
+          showToast(`📥 ${incoming.length} 件のプリセットを読み込みました`);
+        } catch (err) {
+          showToast('⚠️ ファイルの読み込みに失敗しました');
+        }
+        importFileInput.value = '';
+      };
+      reader.readAsText(file);
+    });
 
     // ===== Preset Selection =====
     const presetBtns = presetGrid.querySelectorAll('.preset-btn');
