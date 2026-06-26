@@ -1423,6 +1423,36 @@
     let examName = '';
     let modeName = '';
 
+    // ===== Screen Wake Lock =====
+    // Keep the screen awake while a timer is running so phones/tablets
+    // don't sleep mid-session (and miss the alarm). Released on stop/finish.
+    let wakeLock = null;
+
+    async function requestWakeLock() {
+      if (!('wakeLock' in navigator)) return; // unsupported browser
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+        wakeLock.addEventListener('release', () => { wakeLock = null; });
+      } catch (e) {
+        // e.g. denied because page not visible or battery saver — fail silently
+        wakeLock = null;
+      }
+    }
+
+    async function releaseWakeLock() {
+      if (!wakeLock) return;
+      try { await wakeLock.release(); } catch (e) {}
+      wakeLock = null;
+    }
+
+    // Re-acquire the lock when returning to the tab if a timer is still active.
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' &&
+          timerInterval && !wakeLock) {
+        requestWakeLock();
+      }
+    });
+
     // ===== Audio =====
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     let audioCtx = null;
@@ -2161,6 +2191,7 @@
 
       clearInterval(timerInterval);
       timerInterval = setInterval(tick, 1000);
+      requestWakeLock();
     }
 
     function tick() {
@@ -2215,6 +2246,8 @@
         } else {
           // All sets done
           clearInterval(timerInterval);
+          timerInterval = null;
+          releaseWakeLock();
           playFinishSound();
           showScreen(finishScreen);
           $('finishSub').textContent = totalSets > 1
@@ -2256,6 +2289,8 @@
 
     stopBtn.addEventListener('click', () => {
       clearInterval(timerInterval);
+      timerInterval = null;
+      releaseWakeLock();
       showScreen(setupScreen);
     });
 
@@ -2291,5 +2326,6 @@
       });
     }
   </script>
+  <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "76fc2b75d6f7459ba1fed7fd581d5e79"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
